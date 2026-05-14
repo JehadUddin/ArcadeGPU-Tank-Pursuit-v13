@@ -405,6 +405,10 @@ export class GameScreen extends Screen {
       const p = this.projectiles[i];
       p.life -= ts / 1000;
 
+      const pPos = p.body.body.GetPosition();
+      const pPos3: vec3 = [pPos.GetX(), pPos.GetY(), pPos.GetZ()];
+      const curV = p.body.body.GetLinearVelocity();
+
       if (p.life <= 0) {
         // Explode on life expiry for grenades
         if (p.type === ProjectileType.GRENADE) {
@@ -414,10 +418,6 @@ export class GameScreen extends Screen {
         this.projectiles.splice(i, 1);
         continue;
       }
-
-      const pPos = p.body.body.GetPosition();
-      const pPos3: vec3 = [pPos.GetX(), pPos.GetY(), pPos.GetZ()];
-      const curV = p.body.body.GetLinearVelocity();
       
       // Trails
       if (p.type === ProjectileType.GRENADE && Math.random() < 0.15) {
