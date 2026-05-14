@@ -84,7 +84,7 @@ export class Enemy {
       x, y, z,
       motionType: Gfx3Jolt.EMotionType_Dynamic,
       layer: JOLT_LAYER_MOVING,
-      settings: { mAngularDamping: 2.0, mLinearDamping: 1.5, mMassPropertiesOverride: 100.0 }
+      settings: { mAngularDamping: 2.0, mLinearDamping: 1.5, mMassPropertiesOverride: 100.0, mAllowedDOFs: 7 }
     });
   }
 
@@ -129,8 +129,13 @@ export class Enemy {
     const linVel = UT.VEC3_SCALE(forward, throttle * speed);
     
     const curVel = this.physicsBody.body.GetLinearVelocity();
-    const joltLinVel = new Gfx3Jolt.Vec3(linVel[0], curVel.GetY(), linVel[2]);
-    gfx3JoltManager.bodyInterface.SetLinearVelocity(this.physicsBody.body.GetID(), joltLinVel);
+    
+    const mass = 100.0;
+    const velDiffX = linVel[0] - curVel.GetX();
+    const velDiffZ = linVel[2] - curVel.GetZ();
+    const kp = 10.0;
+    const joltForce = new Gfx3Jolt.Vec3(velDiffX * mass * kp, 0, velDiffZ * mass * kp);
+    gfx3JoltManager.bodyInterface.AddForce(this.physicsBody.body.GetID(), joltForce);
     
     const curPos = this.physicsBody.body.GetPosition();
     let quat = Quaternion.createFromEuler(this.rotation, 0, 0, 'YXZ');
@@ -138,7 +143,7 @@ export class Enemy {
     // Smooth banking
     let targetUp: vec3 = [0, 1, 0];
     const ray = gfx3JoltManager.createRay(curPos.GetX(), curPos.GetY() + 0.5, curPos.GetZ(), curPos.GetX(), curPos.GetY() - 2.0, curPos.GetZ());
-    if (ray.normal) {
+    if (ray.normal && ray.normal.GetY() > 0.5) {
         targetUp = [ray.normal.GetX(), ray.normal.GetY(), ray.normal.GetZ()];
     }
     

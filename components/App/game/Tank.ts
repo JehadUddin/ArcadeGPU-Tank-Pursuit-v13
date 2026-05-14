@@ -130,8 +130,20 @@ export class Tank {
     const linVel = UT.VEC3_SCALE(forward, this.velocity);
     
     const curVel = this.physicsBody.body.GetLinearVelocity();
-    const joltLinVel = new Gfx3Jolt.Vec3(linVel[0], curVel.GetY(), linVel[2]);
-    gfx3JoltManager.bodyInterface.SetLinearVelocity(this.physicsBody.body.GetID(), joltLinVel);
+    
+    // Instead of hard-setting velocity which fights the collision solver, 
+    // we use a PD controller approach (adding forces) to approach the target velocity.
+    const mass = 100.0; // from mMassPropertiesOverride
+    const velDiffX = linVel[0] - curVel.GetX();
+    const velDiffZ = linVel[2] - curVel.GetZ();
+    
+    // Proportional gain for the velocity controller
+    const kp = 10.0;
+    const forceX = velDiffX * mass * kp;
+    const forceZ = velDiffZ * mass * kp;
+    
+    const joltForce = new Gfx3Jolt.Vec3(forceX, 0, forceZ);
+    gfx3JoltManager.bodyInterface.AddForce(this.physicsBody.body.GetID(), joltForce);
     
     const pos = this.physicsBody.body.GetPosition();
     let quat = Quaternion.createFromEuler(this.rotation, 0, 0, 'YXZ');
@@ -153,10 +165,11 @@ export class Tank {
       const wx = cx + rx * dx + fx * dz;
       const wz = cz + rz * dx + fz * dz;
       const ray = gfx3JoltManager.createRay(wx, cy, wz, wx, cy - 3.0, wz);
-      if (ray.fraction < 1.0) {
+      if (ray.fraction < 1.0 && ray.normal && ray.normal.GetY() > 0.5) {
         return [wx, cy - ray.fraction * 3.0, wz];
       }
-      return [wx, cy - 1.5, wz]; 
+      // If no valid ground hit, assume the ground is flat at cy - 0.5
+      return [wx, cy - 0.5, wz]; 
     };
 
     const fl = getHitPoint(-hw, hd);
