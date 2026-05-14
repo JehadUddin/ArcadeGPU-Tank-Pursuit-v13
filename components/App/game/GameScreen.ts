@@ -186,7 +186,7 @@ export class GameScreen extends Screen {
     combinedMoveDir.y = Math.max(-1, Math.min(1, combinedMoveDir.y));
 
     const currentFiringInput = inputManager.isActiveAction('FIRE') || 
-                          (inputManager.isMouseDown() && inputManager.isPointerLockCaptured() && !inputManager.isActiveAction('FIRE_ALT'));
+                          (inputManager.isMouseDown() && inputManager.isPointerLockCaptured() && !inputManager.isActiveAction('FIRE_ALT') && !this.rightClickFire);
     const isFiringNormal = this.virtualFireNormal || currentFiringInput;
     const isFiringGrenade = this.virtualFireGrenade || this.rightClickFire || inputManager.isActiveAction('FIRE_ALT');
 
