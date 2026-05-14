@@ -183,6 +183,7 @@ const Joystick = ({ onChange }: { onChange: (dir: { x: number, y: number }) => v
 const App = () => {
     const [isReady, setIsReady] = useState(false);
     const [enemyCount, setEnemyCount] = useState(3);
+    const [playerHp, setPlayerHp] = useState(100);
     const gameScreenRef = useRef<GameScreen | null>(null);
     const { width } = useWindowSize();
     
@@ -209,6 +210,9 @@ const App = () => {
             if (gameScreenRef.current) {
                 const count = gameScreenRef.current.enemies.filter(e => e.hp > 0).length;
                 setEnemyCount(count);
+                if (gameScreenRef.current.player) {
+                    setPlayerHp(gameScreenRef.current.player.hp);
+                }
             }
         }, 500);
 
@@ -314,28 +318,67 @@ const App = () => {
                     }}>ARCADE_GPU</h1>
                     <div style={{ display: 'flex', gap: Tokens.spacing.sm }}>
                         <StatBlock label="Enemies" value={enemyCount} icon={Crosshair} />
-                        {!isMobile && <StatBlock label="System" value="OK" icon={Gear} />}
                     </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: Tokens.spacing.sm, pointerEvents: 'auto' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: Tokens.spacing.sm, pointerEvents: 'auto' }}>
                     {isDesktop && (
                         <div style={{
                             backgroundColor: Tokens.colors.surface,
                             padding: Tokens.spacing.md,
-                            borderRadius: Tokens.radius.md,
-                            border: `1px solid ${Tokens.colors.border}`,
-                            fontSize: '10px',
-                            fontFamily: Tokens.fonts.data,
                             color: Tokens.colors.contentDim,
-                            textAlign: 'right'
+                            textAlign: 'right',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '4px',
+                            minWidth: '220px',
+                            border: `1px solid ${Tokens.colors.border}`,
+                            borderRadius: Tokens.radius.md,
+                            backdropFilter: 'blur(10px)',
                         }}>
-                            [SPACE] SHOOT<br />
-                            [SHIFT] GRENADE<br />
-                            [WASD] NAVIGATE
+                            <div style={{ fontSize: '10px', fontFamily: Tokens.fonts.body, letterSpacing: '1px', textTransform: 'uppercase', textAlign: 'left', marginBottom: '8px' }}>Control Schema</div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', fontFamily: Tokens.fonts.data }}><span>MOVE</span><span>WASD / ARROWS</span></div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', fontFamily: Tokens.fonts.data }}><span>AIM</span><span>MOUSE</span></div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', fontFamily: Tokens.fonts.data }}><span>FIRE</span><span>SPACE / CLICK</span></div>
                         </div>
                     )}
-                    <ActionButton icon={Info} size={40} />
+                    
+                    <div style={{
+                        backgroundColor: Tokens.colors.surface,
+                        padding: Tokens.spacing.md,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: Tokens.spacing.sm,
+                        minWidth: '220px',
+                        border: `1px solid ${Tokens.colors.border}`,
+                        borderRadius: Tokens.radius.md,
+                        backdropFilter: 'blur(10px)',
+                    }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ color: Tokens.colors.contentDim, fontSize: '10px', fontFamily: Tokens.fonts.body, letterSpacing: '1px', textTransform: 'uppercase' }}>COMBAT POINTS</span>
+                            <span style={{ color: Tokens.colors.content, fontSize: '18px', fontFamily: Tokens.fonts.data, fontWeight: 600 }}>000000</span>
+                        </div>
+                    </div>
+                    
+                    <div style={{
+                        backgroundColor: Tokens.colors.surface,
+                        padding: Tokens.spacing.md,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: Tokens.spacing.sm,
+                        minWidth: '220px',
+                        border: `1px solid ${Tokens.colors.border}`,
+                        borderRadius: Tokens.radius.md,
+                        backdropFilter: 'blur(10px)',
+                    }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ color: Tokens.colors.contentDim, fontSize: '10px', fontFamily: Tokens.fonts.body, letterSpacing: '1px', textTransform: 'uppercase' }}>HEALTH BAR</span>
+                            <span style={{ color: Tokens.colors.content, fontSize: '12px', fontFamily: Tokens.fonts.data, fontWeight: 600 }}>{Math.max(0, Math.floor(playerHp))}%</span>
+                        </div>
+                        <div style={{ width: '100%', height: '2px', backgroundColor: Tokens.colors.surfaceLight, position: 'relative' }}>
+                            <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: `${Math.max(0, Math.min(100, playerHp))}%`, backgroundColor: '#39FF14', boxShadow: '0 0 8px rgba(57, 255, 20, 0.5)' }} />
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -372,38 +415,6 @@ const App = () => {
                 justifyContent: 'space-between',
                 alignItems: 'flex-end',
             }}>
-                {/* Movement */}
-                <div style={{ pointerEvents: 'auto' }}>
-                    {!isDesktop && (
-                        <Joystick onChange={(dir) => { if (gameScreenRef.current) gameScreenRef.current.moveDir = dir; }} />
-                    )}
-                </div>
-
-                {/* Actions */}
-                {!isDesktop && (
-                <div style={{
-                    display: 'flex',
-                    flexDirection: isMobile ? 'column' : 'row',
-                    gap: Tokens.spacing.md,
-                    pointerEvents: 'auto',
-                }}>
-                    <div style={{ display: 'flex', gap: Tokens.spacing.md }}>
-                        <ActionButton 
-                            icon={Fire} 
-                            size={isMobile ? 64 : 80}
-                            onDown={(e: any) => handleFire('grenade', true, e)}
-                            onUp={(e: any) => handleFire('grenade', false, e)}
-                        />
-                        <ActionButton 
-                            icon={Crosshair} 
-                            size={isMobile ? 80 : 100}
-                            color={Tokens.colors.surfaceLight}
-                            onDown={(e: any) => handleFire('normal', true, e)}
-                            onUp={(e: any) => handleFire('normal', false, e)}
-                        />
-                    </div>
-                </div>
-                )}
             </div>
 
             <div style={{

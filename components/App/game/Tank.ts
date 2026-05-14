@@ -283,8 +283,6 @@ export class Tank {
     this.barrel.draw();
     this.hatch.draw();
     this.antenna.draw();
-    
-    this.drawHealthBar(this.body.getPosition() as vec3, this.hp, 100, cameraYaw);
   }
 
   drawHealthBar(origin: vec3, hp: number, maxHp: number, cameraYaw: number = 0) {

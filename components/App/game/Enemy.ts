@@ -235,8 +235,6 @@ export class Enemy {
     const barrelRelativePos = q.rotateVector([0, 0, -0.8 + visualRecoil]);
     const matBarrel = UT.MAT4_TRANSFORM([origin[0] + turretOffset[0] + barrelRelativePos[0], origin[1] + turretOffset[1] + barrelRelativePos[1], origin[2] + turretOffset[2] + barrelRelativePos[2]], ZERO, scale, q);
     gfx3MeshRenderer.drawMesh(Enemy.barrelMesh, matBarrel);
-    
-    this.drawHealthBar(origin, this.hp, 100, cameraYaw);
   }
 
   drawHealthBar(origin: vec3, hp: number, maxHp: number, cameraYaw: number = 0) {
