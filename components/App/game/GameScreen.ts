@@ -70,7 +70,7 @@ export class GameScreen extends Screen {
     this.tank = new Tank();
     this.level = new Environment();
     
-    this.explosionPool = new ObjectPool<Explosion>(new Explosion(), 100, (obj: Explosion) => {
+    this.explosionPool = new ObjectPool<Explosion>(new Explosion(), 600, (obj: Explosion) => {
         obj.active = false;
         return {};
     });
@@ -457,7 +457,7 @@ export class GameScreen extends Screen {
           // Environment Impact (Ground or Walls)
           // Use vector distance to catch direction changes (bounces) effectively
           const velDiff = UT.VEC3_DISTANCE(p.lastVel, [curV.GetX(), curV.GetY(), curV.GetZ()]);
-          const impacted = pPos.GetY() < -15.0 || (p.life < 4.98 && velDiff > 20);
+          const impacted = pPos.GetY() < -15.0 || (p.life < 4.98 && velDiff > 8);
 
           if (impacted) {
               this.onProjectileEnvironmentImpact(p, pPos3);

@@ -222,9 +222,8 @@ export class Tank {
     // Turret follows body tilt but has independent yaw
     // We want the turret to smoothly turn to face cameraYaw.
     // Calculate the shortest angle path
-    let yawDiff = cameraYaw - this.turretYaw;
-    while (yawDiff > Math.PI) yawDiff -= Math.PI * 2;
-    while (yawDiff < -Math.PI) yawDiff += Math.PI * 2;
+    let yawDiff = ((cameraYaw - this.turretYaw) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
+    if (yawDiff > Math.PI) yawDiff -= Math.PI * 2;
     
     const turretTraverseSpeed = 1.5; // rad per second
     const traverseAmount = turretTraverseSpeed * (ts / 1000);
