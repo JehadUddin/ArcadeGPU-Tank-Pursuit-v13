@@ -165,7 +165,7 @@ export class Tank {
       const wx = cx + rx * dx + fx * dz;
       const wz = cz + rz * dx + fz * dz;
       const ray = gfx3JoltManager.createRay(wx, cy, wz, wx, cy - 3.0, wz);
-      if (ray.fraction < 1.0 && ray.normal && ray.normal.GetY() > 0.5) {
+      if (ray.fraction < 1.0 && ray.normal && ray.normal.GetY() > 0.5 && (!ray.body || ray.body.GetMotionType() === Gfx3Jolt.EMotionType_Static)) {
         return [wx, cy - ray.fraction * 3.0, wz];
       }
       // If no valid ground hit, assume the ground is flat at cy - 0.5
