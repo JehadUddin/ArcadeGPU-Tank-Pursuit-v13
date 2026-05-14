@@ -143,7 +143,7 @@ export class Enemy {
     // Smooth banking
     let targetUp: vec3 = [0, 1, 0];
     const ray = gfx3JoltManager.createRay(curPos.GetX(), curPos.GetY() + 0.5, curPos.GetZ(), curPos.GetX(), curPos.GetY() - 2.0, curPos.GetZ());
-    if (ray.normal && ray.normal.GetY() > 0.5 && (!ray.body || ray.body.GetMotionType() === Gfx3Jolt.EMotionType_Static)) {
+    if (ray.normal && ray.normal.GetY() > 0.5) {
         targetUp = [ray.normal.GetX(), ray.normal.GetY(), ray.normal.GetZ()];
     }
     

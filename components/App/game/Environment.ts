@@ -24,7 +24,6 @@ export class Environment {
   
   decorations: { type: string, pos: vec3, scale: vec3 }[] = [];
   clouds: { pos: vec3, scale: vec3, nextX: number }[] = [];
-  crates: { body: any }[] = [];
 
   constructor() {
     if (!Environment.meshesInitialized) {
@@ -166,15 +165,6 @@ export class Environment {
     
     this.initBatch();
 
-    // Add physics crates
-    for (let i = 0; i < 6; i++) {
-        this.addCrate(
-            (Math.random() - 0.5) * 60, 
-            5 + Math.random() * 15, 
-            (Math.random() - 0.5) * 60
-        );
-    }
-    
     // Add clouds
     for (let i = 0; i < 20; i++) {
         const cx = (Math.random() - 0.5) * 400;
@@ -211,17 +201,6 @@ export class Environment {
     this.batch = combineGeos(geos);
   }
   
-  addCrate(x: number, y: number, z: number) {
-      const body = gfx3JoltManager.addBox({
-          width: 2, height: 2, depth: 2,
-          x, y, z,
-          motionType: Gfx3Jolt.EMotionType_Dynamic,
-          layer: JOLT_LAYER_MOVING,
-          settings: { mMassPropertiesOverride: 10 }
-      });
-      this.crates.push({ body });
-  }
-  
   update(ts: number) {
       // Animate clouds
       for (const cloud of this.clouds) {
@@ -243,16 +222,6 @@ export class Environment {
         const ZERO: vec3 = [0,0,0];
         const mat = UT.MAT4_TRANSFORM([cloud.nextX, cloud.pos[1], cloud.pos[2]], ZERO, cloud.scale, Environment.qMat);
         gfx3MeshRenderer.drawMesh(Environment.cloudMesh, mat);
-    }
-    
-    const crateScale: vec3 = [1,1,1];
-    for (const crate of this.crates) {
-        const pos = crate.body.body.GetPosition();
-        const rot = crate.body.body.GetRotation();
-        const rotQ = new Quaternion(rot.GetW(), rot.GetX(), rot.GetY(), rot.GetZ());
-        const ZERO: vec3 = [0,0,0];
-        const mat = UT.MAT4_TRANSFORM([pos.GetX(),pos.GetY(),pos.GetZ()], ZERO, crateScale, rotQ);
-        gfx3MeshRenderer.drawMesh(Environment.crateMesh, mat);
     }
   }
 }
